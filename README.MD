@@ -43,8 +43,7 @@ Supports searching for user DN before binding and optional CORS enabled via envi
 
    ```env
    ENABLE_CORS=true
-   LDAP_HOST=ldap.example.com
-   LDAP_PORT=389
+   LDAP_URL=ldap://ldap.example.com
    LDAP_BASE_DN=ou=People,dc=example,dc=com
    LDAP_BIND_DN=cn=manager,ou=ServiceAccounts,dc=example,dc=com
    LDAP_BIND_PASSWORD=your-manager-password
@@ -105,10 +104,9 @@ The API listens on port 8080 by default.
 | Variable             | Description                                  | Example                                                      | Default    |
 |----------------------|----------------------------------------------|--------------------------------------------------------------|------------|
 | ENABLE_CORS          | Enable CORS headers (true or false)          | true                                                         | false      |
-| LDAP_HOST            | LDAP server hostname or IP                   | ldap.example.com     | (required) |
-| LDAP_PORT            | LDAP server port                             | 389                                                          | (required) |
-| LDAP_BASE_DN         | Base DN for searching users                  | ou=People,dc=example,dc=com                             | (required) |
-| LDAP_BIND_DN         | Bind DN of the LDAP user for searching       | cn=manager,ou=ServiceAccounts,dc=example,dc=com       | (required) |
+| LDAP_URL             | LDAP server url                              | ldap.example.com                                             | (required) |
+| LDAP_BASE_DN         | Base DN for searching users                  | ou=People,dc=example,dc=com                                  | (required) |
+| LDAP_BIND_DN         | Bind DN of the LDAP user for searching       | cn=manager,ou=ServiceAccounts,dc=example,dc=com              | (required) |
 | LDAP_BIND_PASSWORD   | Password for the bind DN                     | your-manager-password                                        | (required) |
 | LDAP_SEARCH_FILTER   | LDAP search filter, %s replaced by username  | (uid=%s)                                                     | (uid=%s)   |
 

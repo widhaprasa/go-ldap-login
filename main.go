@@ -64,8 +64,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ldapHost := os.Getenv("LDAP_HOST")
-	ldapPort := os.Getenv("LDAP_PORT")
+	ldapUrl := os.Getenv("LDAP_URL")
 	baseDN := os.Getenv("LDAP_BASE_DN")
 	bindDN := os.Getenv("LDAP_BIND_DN")
 	bindPassword := os.Getenv("LDAP_BIND_PASSWORD")
@@ -74,7 +73,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		filterTemplate = "(uid=%s)"
 	}
 
-	conn, err := ldap.DialURL(fmt.Sprintf("%s:%s", ldapHost, ldapPort))
+	conn, err := ldap.DialURL(ldapUrl)
 	if err != nil {
 		http.Error(w, "LDAP connection failed", http.StatusInternalServerError)
 		return
