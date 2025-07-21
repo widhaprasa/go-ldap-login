@@ -1,5 +1,5 @@
 # Base image for building the Go application
-FROM 1.24.5-alpine3.22 as build
+FROM golang:1.24.5-alpine3.22 as build
 
 # Set the working directory for the build process
 WORKDIR /build
