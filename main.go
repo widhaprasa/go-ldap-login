@@ -54,8 +54,13 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 	type Response struct {
-		Success bool   `json:"success"`
-		Message string `json:"message"`
+		Success   bool   `json:"success"`
+		Message   string `json:"message"`
+		CN        string `json:"cn"`
+		UID       string `json:"uid"`
+		GivenName string `json:"givenName"`
+		SN        string `json:"sn"`
+		Email     string `json:"email"`
 	}
 
 	var req Login
@@ -85,7 +90,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filter := fmt.Sprintf(filterTemplate, ldap.EscapeFilter(req.Username))
+	username := strings.TrimSpace(req.Username)
+	filter := fmt.Sprintf(filterTemplate, ldap.EscapeFilter(username))
 
 	searchReq := ldap.NewSearchRequest(
 		baseDN,
@@ -93,7 +99,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		ldap.NeverDerefAliases,
 		0, 0, false,
 		filter,
-		[]string{"dn"},
+		[]string{"dn", "cn", "givenName", "sn", "mail"},
 		nil,
 	)
 
@@ -110,5 +116,16 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(Response{Success: true, Message: "Login successful"})
+	entry := result.Entries[0]
+	email := entry.GetAttributeValue("mail")
+
+	json.NewEncoder(w).Encode(Response{
+		Success:   true,
+		Message:   "Login successful",
+		CN:        entry.GetAttributeValue("cn"),
+		UID:       username,
+		GivenName: entry.GetAttributeValue("givenName"),
+		SN:        entry.GetAttributeValue("sn"),
+		Email:     email,
+	})
 }
