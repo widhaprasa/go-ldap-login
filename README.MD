@@ -48,6 +48,7 @@ Supports searching for user DN before binding and optional CORS enabled via envi
    LDAP_BIND_DN=cn=manager,ou=ServiceAccounts,dc=example,dc=com
    LDAP_BIND_PASSWORD=your-manager-password
    LDAP_SEARCH_FILTER=(uid=%s)
+   LDAP_SEARCH_ATTRIBUTES=uid
    ```
 
 5. Get dependencies:
@@ -87,7 +88,10 @@ The API listens on port 8080 by default.
   ```json
   {
     "success": true,
-    "message": "Login successful"
+      "message": "Login successful",
+      "attributes": {
+         "uid": "alice"
+      }
   }
   ```
 
@@ -109,6 +113,7 @@ The API listens on port 8080 by default.
 | LDAP_BIND_DN         | Bind DN of the LDAP user for searching       | cn=manager,ou=ServiceAccounts,dc=example,dc=com              | (required) |
 | LDAP_BIND_PASSWORD   | Password for the bind DN                     | your-manager-password                                        | (required) |
 | LDAP_SEARCH_FILTER   | LDAP search filter, %s replaced by username  | (uid=%s)                                                     | (uid=%s)   |
+| LDAP_SEARCH_ATTRIBUTES | Comma-separated LDAP attributes to fetch   | uid,cn,givenName,sn,mail                                    | uid        |
 
 ---
 

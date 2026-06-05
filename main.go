@@ -54,13 +54,9 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 	type Response struct {
-		Success   bool   `json:"success"`
-		Message   string `json:"message"`
-		CN        string `json:"cn"`
-		UID       string `json:"uid"`
-		GivenName string `json:"givenName"`
-		SN        string `json:"sn"`
-		Email     string `json:"email"`
+		Success    bool              `json:"success"`
+		Message    string            `json:"message"`
+		Attributes map[string]string `json:"attributes"`
 	}
 
 	var req Login
@@ -76,6 +72,22 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	filterTemplate := os.Getenv("LDAP_SEARCH_FILTER")
 	if filterTemplate == "" {
 		filterTemplate = "(uid=%s)"
+	}
+
+	attributesEnv := os.Getenv("LDAP_SEARCH_ATTRIBUTES")
+	if attributesEnv == "" {
+		attributesEnv = "uid"
+	}
+
+	requestedAttributes := make([]string, 0)
+	seenAttributes := make(map[string]bool)
+	for _, rawAttr := range strings.Split(attributesEnv, ",") {
+		attr := strings.TrimSpace(rawAttr)
+		if attr == "" || seenAttributes[attr] {
+			continue
+		}
+		requestedAttributes = append(requestedAttributes, attr)
+		seenAttributes[attr] = true
 	}
 
 	conn, err := ldap.DialURL(ldapUrl)
@@ -99,7 +111,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		ldap.NeverDerefAliases,
 		0, 0, false,
 		filter,
-		[]string{"dn", "cn", "givenName", "sn", "mail"},
+		requestedAttributes,
 		nil,
 	)
 
@@ -117,15 +129,18 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	entry := result.Entries[0]
-	email := entry.GetAttributeValue("mail")
+	attributes := make(map[string]string, len(requestedAttributes))
+	for _, attr := range requestedAttributes {
+		if strings.EqualFold(attr, "dn") {
+			attributes[attr] = entry.DN
+			continue
+		}
+		attributes[attr] = entry.GetAttributeValue(attr)
+	}
 
 	json.NewEncoder(w).Encode(Response{
-		Success:   true,
-		Message:   "Login successful",
-		CN:        entry.GetAttributeValue("cn"),
-		UID:       username,
-		GivenName: entry.GetAttributeValue("givenName"),
-		SN:        entry.GetAttributeValue("sn"),
-		Email:     email,
+		Success:    true,
+		Message:    "Login successful",
+		Attributes: attributes,
 	})
 }

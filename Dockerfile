@@ -1,5 +1,5 @@
 # Base image for building the Go application
-FROM golang:1.24.5-alpine3.22 as build
+FROM golang:1.26.4-alpine3.23 as build
 
 # Set the working directory for the build process
 WORKDIR /build
@@ -14,7 +14,7 @@ RUN go mod tidy
 RUN go build -o app .
 
 # Base image for running the compiled application
-FROM alpine:3.22.1
+FROM alpine:3.23.4
 
 # Copy the built application binary from the build stage
 COPY --from=build /build/app .
